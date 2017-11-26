@@ -1,0 +1,13 @@
+matchers:
+  - route: /hello
+    response: Hallo!
+  - route: /goodbye
+    response: See ya!
+  - route: /error
+    statusCode: 500
+    response: whoops!
+  - route: /json
+    statusCode: 200
+    response: "{}"
+    headers:
+        content-type: application/json
