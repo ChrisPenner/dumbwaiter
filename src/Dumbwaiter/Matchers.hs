@@ -13,7 +13,7 @@ import Dumbwaiter.Types
 allMatchers :: [Matcher]
 allMatchers = 
   [ methodMatcher
-  , routeMatcher
+  , pathMatcher
   ]
 
 methodMatcher :: Matcher
@@ -23,8 +23,8 @@ methodMatcher val = case method of
     where
       method = T.toLower <$> val ^? key "method" . _String
 
-routeMatcher :: Matcher
-routeMatcher val = case route of
+pathMatcher :: Matcher
+pathMatcher val = case route of
                      Nothing -> return True
                      Just r -> F.pathMatches r
   where

@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
-{-# language NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns #-}
 module Main where
 
 import Options.Applicative
