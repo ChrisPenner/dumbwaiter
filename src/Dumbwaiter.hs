@@ -3,6 +3,7 @@
 {-# language GADTs #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# language OverloadedStrings #-}
 module Dumbwaiter
   ( run
   ) where
@@ -15,13 +16,15 @@ import qualified Data.Yaml as Y
 import Data.Bifunctor
 import Data.Foldable
 import qualified Web.Firefly as F
+import qualified Data.Text.IO as TIO
 import System.Exit (exitFailure)
+import Control.Monad.IO.Class
+import Control.Monad.Reader
 import Data.Monoid
-import Data.Maybe
 
 
 data Config = Config
-  { matchers :: [A.Value]
+  { routes :: [RouteConfig]
   } deriving (Show, Generic, A.FromJSON, A.ToJSON)
 
 readConfig :: FilePath -> IO (Either String Config)
@@ -29,15 +32,14 @@ readConfig filepath = first show <$> Y.decodeFileEither filepath
 
 type Port = Int
 
-run :: (Foldable f) => f Strategy -> FilePath -> Port -> IO ()
-run strategies configFile port = do
+run :: [Matcher] -> [Responder] -> FilePath -> Port -> IO ()
+run matchers responders configFile port = do
   config <- readConfig configFile
-  ms <- case config of
-    Left err -> print err >> exitFailure
-    Right conf -> return $ matchers conf
-  F.run port $ traverse_ (mkHandler strategies) ms
-
-mkHandler :: (Foldable f) => f Strategy -> A.Value -> F.Handler ()
-mkHandler strategies matcher = fromMaybe (pure ()) $ firstMatching
-  where
-    firstMatching = getFirst $ foldMap (\strat -> First $ strat matcher) strategies
+  routes' <- case config of
+           Left err -> print err >> exitFailure
+           Right Config{routes} -> return routes
+  F.run port $ do
+    path <- F.getPath
+    method <- F.getMethod
+    liftIO . TIO.putStrLn $ method <> " " <> path
+    traverse_ (\routeConf -> buildHandler routeConf matchers responders) routes'

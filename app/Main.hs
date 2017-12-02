@@ -8,7 +8,8 @@ import Data.Semigroup ((<>))
 import GHC.Generics
 import qualified Data.Aeson as A
 import Dumbwaiter
-import Dumbwaiter.Strategies
+import Dumbwaiter.Matchers
+import Dumbwaiter.Responders
 
 data Options = Options
   { configFile :: String
@@ -30,7 +31,7 @@ options = Options
          <> help "The port to run the server on" )
 
 main :: IO ()
-main = execParser opts >>= \Options{configFile, port} -> run [simpleRoute] configFile port
+main = execParser opts >>= \Options{configFile, port} -> run allMatchers allResponders configFile port
   where
     opts = info (options <**> helper)
       ( fullDesc

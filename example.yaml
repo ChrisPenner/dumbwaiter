@@ -1,13 +1,20 @@
-matchers:
-  - route: /hello
-    response: Hallo!
-  - route: /goodbye
-    response: See ya!
-  - route: /error
-    statusCode: 500
-    response: whoops!
-  - route: /json
-    statusCode: 200
-    response: "{}"
-    headers:
-        content-type: application/json
+routes:
+  - match:
+      path: /hello
+    response:
+      body: Hi
+  - match:
+      - method: get
+    response:
+      body: Err!
+      status: 500
+  # - route: /goodbye
+  #   response: See ya!
+  # - route: /error
+  #   statusCode: 500
+  #   response: whoops!
+  # - route: /json
+  #   statusCode: 200
+  #   response: "{}"
+  #   headers:
+  #       content-type: application/json
