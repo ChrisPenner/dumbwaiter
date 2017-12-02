@@ -37,7 +37,6 @@ resolver: lts-9.14
 # will not be run. This is useful for tweaking upstream packages.
 packages:
 - .
-- ../firefly/firefly
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
