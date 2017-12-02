@@ -37,6 +37,6 @@ script:
    set +ex
 
 after_success:
-- |
+ - |
    # Build and ship binary
-  ./.travis/attach-binary.sh
+   ./.travis/attach-binary.sh
