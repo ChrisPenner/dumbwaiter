@@ -40,7 +40,7 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
-- firefly-0.2.0.0
+- firefly-0.2.1.0
 - optparse-applicative-0.14.0.0
 - aeson-1.2.3.0
 
