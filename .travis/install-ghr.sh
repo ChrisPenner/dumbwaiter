@@ -1,7 +1,7 @@
 #!/bin/sh
 set -o errexit -o verbose
 
-if test ! "$BUILD_BINARY" || ! "$TRAVIS_TAG"
+if test ! "$BUILD_BINARY" || test ! "$TRAVIS_TAG"
 then
   echo 'This is not a release build.'
 else

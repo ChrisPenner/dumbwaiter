@@ -64,7 +64,7 @@ Examples:
     matches *OR* if the `method` key is not provided
 
 Matchers are easy to write; feel free to fork and add your own, or better yet make a Pull Request and contribute them
-here! Here's the [source for matchers](./src/Dumbwaiter/Matchers.hs).
+here! Here's the [source code for matchers](./src/Dumbwaiter/Matchers.hs).
 
 Here are some ideas:
 - Only match if a query param is present
@@ -92,3 +92,5 @@ Here's some ideas:
 - Transform request body into response by some *shell command*
 - Extract a query param from the request and respond with it
 - Choose response code based on whether request matches some parameters
+
+Here's the [source code for responders](./src/Dumbwaiter/Responders.hs).
