@@ -4,6 +4,10 @@ An 'unintelligent server' (aka dumb-waiter) configured via simple yaml DSL.
 Useful when you just need a server to mock out some reponses for testing or
 what have you.
 
+[Download binaries!](https://github.com/ChrisPenner/dumbwaiter/releases/latest)
+
+Or `brew install ChrisPenner/tools/dumbwaiter`
+
 Quickstart
 ==========
 
@@ -41,6 +45,15 @@ routes:
       body: Not Found
       status: 404
 ```
+
+## Installation
+
+On mac:
+- `brew install ChrisPenner/tools/dumbwaiter`
+
+On Linux (or Mac):
+- Go to the [latest release](https://github.com/ChrisPenner/dumbwaiter/releases/latest) and download a binary
+
 
 # Extensibility
 
