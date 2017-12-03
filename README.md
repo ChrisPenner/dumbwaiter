@@ -1,7 +1,8 @@
 # Dumbwaiter
 
-A 'dumb server' configured via simple yaml DSL. Useful when you just need a server to mock out some reponses for
-testing or what have you.
+An 'unintelligent server' (aka dumb-waiter) configured via simple yaml DSL.
+Useful when you just need a server to mock out some reponses for testing or
+what have you.
 
 Quickstart
 ==========
@@ -40,3 +41,54 @@ routes:
       body: Not Found
       status: 404
 ```
+
+# Extensibility
+
+Dumbwaiter is written in a compositional style; there are two concepts to know, `Matchers` and `Responders`
+
+## [Matchers](./src/Dumbwaiter/Matchers.hs)
+
+Matchers are used to determine whether a given *request* matches a *route*. *Matchers* are functions which when given
+a request and `match` config respond with either `True` (the request matches this matcher) or `False` (the request does
+not match this matcher). *Matchers* are *NOT* tied to a specific key in the `match` dictionary, they can use any keys
+they like.
+
+If any matcher rejects, then the whole route rejects. All matchers must match for a route to be triggered. This means
+that if a matcher can determine that the user hasn't specified anything for that matcher, it should just return `True`
+by default.
+
+Examples:
+- Path matcher: Checks the `path` key and does a regex match against the request's path. Returns `True` if the path
+    matches the pattern *OR* if the `path` key is not provided
+- Method matcher: Checks the `method` key and checks that it equals the request's method. Returns `True` if the method
+    matches *OR* if the `method` key is not provided
+
+Matchers are easy to write; feel free to fork and add your own, or better yet make a Pull Request and contribute them
+here! Here's the [source for matchers](./src/Dumbwaiter/Matchers.hs).
+
+Here are some ideas:
+- Only match if a query param is present
+- Match on headers (e.g. content-type)
+
+## [Responders](./src/Dumbwaiter/Responders.hs)
+
+Responders are used to generate the *response* for route once the route has been matched. Responders work a bit like
+middleware. A responder is a function which takes a `response` config (from the matching route) and returns a function
+which operates on a ResponseBuilder and returns a new ResponseBuilder within the context of a *Firefly* `Handler`.
+This means that a Responder can interact with or overwrite data provided by other responders. The Order of responders
+matters in certain cases; but usually should not interfere with one another. If a responder doesn't have the context
+to do something, or hasn't been configured in the `response` block it should just return the ResponseBuilder it is
+passed.
+
+Examples:
+- Body responder: Appends any content in the `body` tag of the `response` to any existing body content in the response.
+- Status responder: Sets the status code of the response to the code in the `response` config's `status` key.
+- Header responder: Appends the headers from the map found in the `header` key of the `response`.
+
+Just like *Matchers* it's easy to write your own *Responders*. Feel free to contribute some!
+
+Here's some ideas:
+- Generate response body from a provided *shell command*
+- Transform request body into response by some *shell command*
+- Extract a query param from the request and respond with it
+- Choose response code based on whether request matches some parameters

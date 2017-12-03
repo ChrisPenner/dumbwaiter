@@ -1,5 +1,5 @@
 name:                dumbwaiter
-version:             0.2.0.0
+version:             0.2.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/ChrisPenner/dumbwaiter#readme
@@ -22,7 +22,7 @@ library
                      , Dumbwaiter.Strategies
   build-depends:       base >= 4.7 && < 5
                      , yaml == 0.8.*
-                     , firefly == 0.1.*
+                     , firefly == 0.2.*
                      , text == 1.2.*
                      , aeson == 1.2.*
                      , bytestring == 0.10.*

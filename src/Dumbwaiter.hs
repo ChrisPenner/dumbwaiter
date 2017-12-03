@@ -19,7 +19,6 @@ import qualified Web.Firefly as F
 import qualified Data.Text.IO as TIO
 import System.Exit (exitFailure)
 import Control.Monad.IO.Class
-import Control.Monad.Reader
 import Data.Monoid
 
 
