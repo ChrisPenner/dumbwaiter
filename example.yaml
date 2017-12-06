@@ -15,7 +15,7 @@ routes:
       # This matches ALL post requests
       method: post
     response:
-      body: '{ result: "ok" }'
+      body: '{ "result": "ok" }'
       # We can set headers as a yaml map
       headers:
         content-type: application/json
