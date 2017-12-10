@@ -37,6 +37,7 @@ run matchers responders configFile port = do
   routes' <- case config of
            Left err -> print err >> exitFailure
            Right Config{routes} -> return routes
+  putStrLn $ "Serving on port " <> show port
   F.run port $ do
     path <- F.getPath
     method <- F.getMethod
