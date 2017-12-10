@@ -22,7 +22,9 @@ import Control.Monad.IO.Class
 import Data.Monoid
 import Control.Monad
 import Control.Concurrent
+import Control.Concurrent.Async
 import System.FSNotify
+import System.Directory
 
 
 data Config = Config
@@ -37,7 +39,7 @@ type Port = Int
 run :: [Matcher] -> [Responder] -> FilePath -> Port -> IO ()
 run matchers responders configFilePath port = do
   putStrLn $ "Serving on port " <> show port
-  filewatcher configFilePath (runServer matchers responders port)
+  filewatchLoop configFilePath (runServer matchers responders port)
 
 runServer :: [Matcher] -> [Responder] -> Int -> [RouteConfig] -> IO ()
 runServer matchers responders port routes' =
@@ -54,13 +56,16 @@ readRoutes configFilePath = do
     Left err -> print err >> exitFailure
     Right Config{routes} -> return routes
 
-
-filewatcher :: String -> ([RouteConfig] -> IO ()) -> IO ()
-filewatcher configFilePath serverRunner = withManager $ \m -> do
-  _ <- watchDir m "." matchesConfFile $ \evt -> do
-    putStrLn $ eventPath evt
-    routes' <- readRoutes configFilePath
-    serverRunner routes'
+filewatchLoop :: String -> ([RouteConfig] -> IO ()) -> IO ()
+filewatchLoop configFilePath serverRunner = withManager $ \m -> do
+  absConfigPath <- makeAbsolute configFilePath
+  let matchesConfFile = (== absConfigPath) . eventPath
+  syncVar <- newEmptyMVar
+  _ <- forkIO $ loadAndRunServer syncVar
+  _ <- watchDir m "." matchesConfFile $ const (putMVar syncVar ())
   forever $ threadDelay 1000000 -- block forever
     where
-      matchesConfFile = const True -- (== configFilePath) . eventPath
+      loadAndRunServer syncVar = forever $ do
+        routes' <- readRoutes configFilePath
+        race_ (serverRunner routes') (takeMVar syncVar)
+        putStrLn $ configFilePath <> " changed, restarting server..."

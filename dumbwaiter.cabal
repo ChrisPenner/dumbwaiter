@@ -1,5 +1,5 @@
 name:                dumbwaiter
-version:             0.2.3.0
+version:             0.3.0.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/ChrisPenner/dumbwaiter#readme
@@ -34,6 +34,8 @@ library
                      , wai == 3.2.*
                      , mtl == 2.2.*
                      , fsnotify == 0.2.*
+                     , async == 2.1.*
+                     , directory == 1.3.*
   default-language:    Haskell2010
   ghc-options:         -Wall
 

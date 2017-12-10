@@ -14,6 +14,9 @@ Quickstart
 Save the following config into `server.yaml` and run it with
 `dumbwaiter -f server.yaml --port 8080`
 
+The server will watch for changes in your config file and will reload config changes
+automatically.
+
 ```yaml
 # List your routes
 # Each route has a matcher and a response
