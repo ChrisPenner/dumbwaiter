@@ -32,7 +32,7 @@ routes:
     response:
       # Serve contents from a file
       # Filepath is relative to working directory of the running server
-      file: './index.html'
+      file: ./index.html
 
   # Here's another route matcher for a JSON request
   - match:
