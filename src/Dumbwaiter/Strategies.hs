@@ -20,17 +20,18 @@ import qualified Network.HTTP.Types.Status as S
 import qualified Data.CaseInsensitive as CI
 import qualified Network.Wai as W
 import Control.Monad
+import Control.Lens
 import Data.Foldable
 import Dumbwaiter.Types
 
 import qualified Network.HTTP.Types.Header as HTTP
 
 toWaiResponse :: ResponseBuilder -> W.Response
-toWaiResponse ResponseBuilder{..} = W.responseLBS status headers' content
+toWaiResponse builder = W.responseLBS status headers' content
   where
-    content = LTE.encodeUtf8 . fromStrict $ body
-    status = S.mkStatus statusCode mempty
-    headers' = fromHeaderMap headers
+    content = LTE.encodeUtf8 . fromStrict $ builder ^. body
+    status = S.mkStatus (builder^.statusCode) mempty
+    headers' = builder ^. headers . to fromHeaderMap
 
 buildHandler :: RouteConfig -> [Matcher] -> [Responder] -> F.App ()
 buildHandler RouteConfig{match=matcherConfig, response=respConfig} matchers responders 
@@ -41,9 +42,9 @@ buildHandler RouteConfig{match=matcherConfig, response=respConfig} matchers resp
   where
     buildResponse start = foldl' (>>=) (pure start) (fmap ($ respConfig) responders)
     emptyResponse = ResponseBuilder
-      { statusCode = 200
-      , body = mempty
-      , headers = mempty
+      { _statusCode = 200
+      , _body = mempty
+      , _headers = mempty
       }
 
 fromHeaderMap :: F.HeaderMap -> HTTP.ResponseHeaders

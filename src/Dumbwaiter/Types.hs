@@ -1,12 +1,14 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveAnyClass #-}
+{-# language DeriveGeneric #-}
+{-# language DeriveAnyClass #-}
 {-# language OverloadedStrings #-}
+{-# language TemplateHaskell #-}
 module Dumbwaiter.Types where
 
 import GHC.Generics
 import qualified Data.Text as T
 import qualified Data.Aeson as A
 import qualified Web.Firefly as F
+import Control.Lens
 
 type ResponseConfig = A.Value
 type MatcherConfig = A.Value
@@ -23,8 +25,10 @@ data RouteConfig =
 
 data ResponseBuilder =
   ResponseBuilder
-    { statusCode :: Int
-    , body :: T.Text
-    , headers :: F.HeaderMap
+    { _statusCode :: Int
+    , _body :: T.Text
+    , _headers :: F.HeaderMap
     }
+
+makeLenses ''ResponseBuilder
 

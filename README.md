@@ -27,6 +27,13 @@ routes:
     response:
       body: Hello, World!
 
+  - match:
+      path: /
+    response:
+      # Serve contents from a file
+      # Filepath is relative to working directory of the running server
+      file: './index.html'
+
   # Here's another route matcher for a JSON request
   - match:
       # This matches ALL post requests
@@ -54,6 +61,26 @@ On mac:
 On Linux (or Mac):
 - Go to the [latest release](https://github.com/ChrisPenner/dumbwaiter/releases/latest) and download a binary
 
+# Features
+
+## Builtin Matchers
+
+- `path`: Matches when provided regex matches the path of the request
+    - e.g. `path: /users/[a-zA-Z]+`
+- `method`: Matches when the http method matches the provided value. It's case insensitive.
+    - e.g. `method: GET`
+
+## Builtin Responders
+
+- `body`: Appends the given string to the body of the response
+    - e.g. `body: Hello World!`
+- `status`: Sets the status code of the response to the given integer
+    - e.g. `status: 401`
+- `header`: Adds the given headers to the response
+    - e.g. `headers: {"content-type": "application/json"}`
+- `file`: Reads the given filepath and appends its contents to the response body. Filepath is relative to the 
+          server's working directory
+    - e.g. `file: ./src/index.html`
 
 # Extensibility
 

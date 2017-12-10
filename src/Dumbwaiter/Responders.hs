@@ -9,31 +9,50 @@ import Data.Maybe
 import qualified Data.CaseInsensitive as CI
 import Data.Aeson.Lens
 import Control.Lens
+import Data.Text.Lens (packed)
 import Data.Monoid
 import Dumbwaiter.Types
+import Control.Monad.IO.Class
+import Control.Exception
+import System.IO
+import qualified Data.Text.IO as TIO
 
 allResponders  :: [Responder]
-allResponders = 
+allResponders =
   [ bodyResponder
   , headerResponder
   , statusResponder
+  , fileResponder
   ]
 
 bodyResponder :: Responder
 bodyResponder respConfig = case body' of
                              Nothing -> pure
-                             Just content -> pure . addContent content
+                             Just content -> pure . (body <>~ content)
   where
     body' = respConfig ^? key "body" . _String
-    addContent content builder = builder{body=body builder <> content}
 
 headerResponder :: Responder
-headerResponder respConfig builder@ResponseBuilder{headers} = pure $ builder{headers = headers <> headerMap}
+headerResponder respConfig = pure . (headers <>~ headerMap)
   where
     headerMap = fmap pure . M.mapKeys CI.mk . M.fromList $ respConfig ^@.. key "headers" . members . _String
 
 statusResponder :: Responder
-statusResponder respConfig builder = pure $ builder{statusCode=fromIntegral status}
+statusResponder respConfig = pure . (statusCode .~ fromIntegral status)
   where
     status = fromMaybe 200 $ respConfig ^? key "status" . _Integer
 
+fileResponder :: Responder
+fileResponder respConfig builder =
+  case filepath of
+    Nothing -> pure builder
+    Just path -> liftIO $ addFile path `onException` printError path
+  where
+    filepath = respConfig ^? key "file" . _String . from packed
+    printError path = do
+      hPutStrLn stderr $ "File not found: " <> path
+      return $ builder & body .~ "Internal Server Error"
+                       & statusCode .~ 500
+    addFile path = do
+      content <- TIO.readFile path
+      return $ builder & body <>~ content
