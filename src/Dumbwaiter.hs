@@ -17,7 +17,6 @@ import Data.Bifunctor
 import Data.Foldable
 import qualified Web.Firefly as F
 import qualified Data.Text.IO as TIO
-import System.Exit (exitFailure)
 import Control.Monad.IO.Class
 import Data.Monoid
 import Control.Monad
@@ -25,6 +24,7 @@ import Control.Concurrent
 import Control.Concurrent.Async
 import System.FSNotify
 import System.Directory
+import System.IO
 
 
 data Config = Config
@@ -32,7 +32,7 @@ data Config = Config
   } deriving (Show, Generic, A.FromJSON, A.ToJSON)
 
 readConfigFile :: FilePath -> IO (Either String Config)
-readConfigFile filepath = first show <$> Y.decodeFileEither filepath
+readConfigFile filepath = first Y.prettyPrintParseException <$> Y.decodeFileEither filepath
 
 type Port = Int
 
@@ -49,12 +49,8 @@ runServer matchers responders port routes' =
     liftIO . TIO.putStrLn $ method <> " " <> path
     traverse_ (\routeConf -> buildHandler routeConf matchers responders) routes'
 
-readRoutes :: String -> IO [RouteConfig]
-readRoutes configFilePath = do
-  config <- readConfigFile configFilePath
-  case config of
-    Left err -> print err >> exitFailure
-    Right Config{routes} -> return routes
+readRoutes :: String -> IO (Either String [RouteConfig])
+readRoutes configFilePath = fmap routes <$> readConfigFile configFilePath
 
 filewatchLoop :: String -> ([RouteConfig] -> IO ()) -> IO ()
 filewatchLoop configFilePath serverRunner = withManager $ \m -> do
@@ -67,5 +63,7 @@ filewatchLoop configFilePath serverRunner = withManager $ \m -> do
     where
       loadAndRunServer syncVar = forever $ do
         routes' <- readRoutes configFilePath
-        race_ (serverRunner routes') (takeMVar syncVar)
+        case routes' of
+          Left err -> hPutStrLn stderr err >> takeMVar syncVar
+          Right rs -> race_ (serverRunner rs) (takeMVar syncVar)
         putStrLn $ configFilePath <> " changed, restarting server..."
