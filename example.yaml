@@ -27,6 +27,14 @@ routes:
       headers:
         content-type: application/json
 
+  # We can also serve static files
+  - match:
+      path: /static/.*
+    response:
+      # The path will be suffixed to this directory; 
+      # The path `/static/views/page.html` will load the file `./src/static/views/page.html`
+      static-files: ./src
+
   # This is a catchall for 404s; this is provided for you by default
   # but I'll show you what it looks like:
   - match:

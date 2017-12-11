@@ -15,6 +15,9 @@ import Dumbwaiter.Types
 import Control.Monad.IO.Class
 import Control.Exception
 import System.IO
+import System.FilePath.Posix
+import qualified Data.Text as T
+import qualified Web.Firefly as F
 import qualified Data.Text.IO as TIO
 
 allResponders  :: [Responder]
@@ -23,6 +26,7 @@ allResponders =
   , headerResponder
   , statusResponder
   , fileResponder
+  , staticFiles
   ]
 
 bodyResponder :: Responder
@@ -56,3 +60,14 @@ fileResponder respConfig builder =
     addFile path = do
       content <- TIO.readFile path
       return $ builder & body <>~ content
+
+staticFiles :: Responder
+staticFiles respConfig builder = 
+  case dir of
+    Nothing -> pure builder
+    Just d -> do
+      path <- dropWhile (== '/') . T.unpack <$> F.getPath
+      contents <- liftIO . TIO.readFile $ d </> path
+      return $ builder & body <>~ contents
+  where
+    dir = respConfig ^? key "static-files" . _String . from packed

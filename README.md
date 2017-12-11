@@ -35,7 +35,7 @@ routes:
     response:
       # Serve contents from a file
       # Filepath is relative to working directory of the running server
-      file: ./index.html
+      file: './index.html'
 
   # Here's another route matcher for a JSON request
   - match:
@@ -46,6 +46,14 @@ routes:
       # We can set headers as a yaml map
       headers:
         content-type: application/json
+
+  # We can also serve static files
+  - match:
+      path: /static/.*
+    response:
+      # The path will be suffixed to this directory; 
+      # The path `/static/views/page.html` will load the file `./src/static/views/page.html`
+      static-files: ./src
 
   # This is a catchall for 404s; this is provided for you by default
   # but I'll show you what it looks like:
@@ -68,22 +76,28 @@ On Linux (or Mac):
 
 ## Builtin Matchers
 
-- `path`: Matches when provided regex matches the path of the request
-    - e.g. `path: /users/[a-zA-Z]+`
-- `method`: Matches when the http method matches the provided value. It's case insensitive.
-    - e.g. `method: GET`
+-   `path`: Matches when provided regex matches the path of the request
+    -   e.g. `path: /users/[a-zA-Z]+`
+-   `method`: Matches when the http method matches the provided value. It's
+    case insensitive.
+    -   e.g. `method: GET`
+
 
 ## Builtin Responders
 
-- `body`: Appends the given string to the body of the response
-    - e.g. `body: Hello World!`
-- `status`: Sets the status code of the response to the given integer
-    - e.g. `status: 401`
-- `header`: Adds the given headers to the response
-    - e.g. `headers: {"content-type": "application/json"}`
-- `file`: Reads the given filepath and appends its contents to the response body. Filepath is relative to the 
-          server's working directory
-    - e.g. `file: ./src/index.html`
+-   `body`: Appends the given string to the body of the response
+    -   e.g. `body: Hello World!`
+-   `status`: Sets the status code of the response to the given integer
+    -   e.g. `status: 401`
+-   `header`: Adds the given headers to the response
+    -   e.g. `headers: {"content-type": "application/json"}`
+-   `file`: Reads the given filepath and appends its contents to the response
+    body. Filepath is relative to the server's working directory
+    -   e.g. `file: ./src/index.html`
+-   `static-files`: Serves static files from the given directory (relative to
+    the working directory of the server). The request path is appended to the
+    directory to determine which file to serve.
+    -   e.g. `static-files: ./static`
 
 # Extensibility
 
