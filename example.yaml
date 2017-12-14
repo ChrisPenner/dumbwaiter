@@ -17,6 +17,14 @@ routes:
       # Filepath is relative to working directory of the running server
       file: './index.html'
 
+  # Redirection example
+  - match:
+      path: /redirect
+    response:
+      status: 302
+      headers:
+        Location: http://google.ca
+
   # Here's another route matcher for a JSON request
   - match:
       # This matches ALL post requests
